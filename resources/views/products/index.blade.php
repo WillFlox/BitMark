@@ -3,69 +3,153 @@
 
 @push('styles')
 <style>
-    /* ── Hero ── */
-    .hero-section {
+    /* ══════════════════════════════════
+       HERO CAROUSEL
+    ══════════════════════════════════ */
+    .hero-carousel {
         position: relative;
         border-radius: 20px;
         overflow: hidden;
-        padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 40px);
-        background: linear-gradient(135deg, rgba(99,102,241,.18) 0%, rgba(168,85,247,.14) 50%, rgba(15,23,42,0) 100%),
-                    var(--surface-solid);
         border: 1px solid var(--border);
         animation: fadeInUp .5s ease both;
     }
-    .hero-section::before {
-        content: '';
+
+    /* Pista de slides */
+    .hero-slides-track {
+        display: flex;
+        transition: transform .6s cubic-bezier(.25,.8,.25,1);
+        will-change: transform;
+    }
+
+    /* Cada slide */
+    .hero-slide {
+        min-width: 100%;
+        position: relative;
+        padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 40px);
+        overflow: hidden;
+    }
+
+    /* Imagen de fondo del slide */
+    .hero-slide-bg {
         position: absolute;
         inset: 0;
-        background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(129,140,248,.12), transparent);
+        background-size: cover;
+        background-position: center;
+        transition: transform 8s linear;
+    }
+    .hero-carousel:not(:hover) .hero-slide-bg {
+        transform: scale(1.04);
+    }
+
+    /* Overlay oscuro para legibilidad */
+    .hero-slide::before {
+        content: '';
+        position: absolute; inset: 0; z-index: 1;
+        background: linear-gradient(135deg, rgba(10,15,35,.88) 0%, rgba(10,15,35,.65) 60%, transparent 100%);
+    }
+    /* Overlay de acento */
+    .hero-slide::after {
+        content: '';
+        position: absolute; inset: 0; z-index: 1;
+        background: radial-gradient(ellipse 70% 90% at 80% 50%, rgba(99,102,241,.15), transparent);
         pointer-events: none;
     }
+
+    /* Contenido encima del overlay */
+    .hero-slide-content { position: relative; z-index: 2; }
+
+    /* Badge */
     .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 12px;
-        border-radius: 999px;
-        background: rgba(129,140,248,.15);
-        border: 1px solid rgba(129,140,248,.3);
-        font-size: .75rem;
-        font-weight: 600;
-        letter-spacing: .04em;
-        color: var(--accent);
-        margin-bottom: 16px;
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 4px 12px; border-radius: 999px;
+        background: rgba(129,140,248,.18);
+        border: 1px solid rgba(129,140,248,.35);
+        font-size: .75rem; font-weight: 600; letter-spacing: .04em;
+        color: var(--accent); margin-bottom: 16px;
     }
+
+    /* Título */
     .hero-title {
         font-size: clamp(1.75rem, 4vw, 2.6rem);
-        font-weight: 800;
-        line-height: 1.15;
+        font-weight: 800; line-height: 1.15;
         background: linear-gradient(45deg, #818cf8, #c084fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 12px;
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 12px;
     }
+
+    /* Subtítulo */
     .hero-subtitle {
-        font-size: 1rem;
-        color: var(--text-muted);
-        max-width: 480px;
-        line-height: 1.65;
-        margin-bottom: 0;
+        font-size: 1rem; color: rgba(203,213,225,.9);
+        max-width: 480px; line-height: 1.65; margin-bottom: 0;
     }
+
+    /* Decoración flotante */
     .hero-decoration {
-        position: absolute;
-        right: 40px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 7rem;
-        opacity: .06;
-        line-height: 1;
-        pointer-events: none;
-        animation: float 4s ease-in-out infinite;
+        position: absolute; right: 40px; top: 50%;
+        transform: translateY(-50%); z-index: 2;
+        font-size: 7rem; opacity: .07; line-height: 1;
+        pointer-events: none; animation: float 4s ease-in-out infinite;
     }
+
+    /* Botón CTA dentro del slide */
+    .hero-cta {
+        margin-top: 20px;
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 10px 22px; border-radius: 12px; font-size: .9rem; font-weight: 600;
+        background: linear-gradient(45deg, var(--btn-from), var(--btn-to));
+        color: #fff; text-decoration: none; border: none;
+        box-shadow: 0 8px 20px rgba(99,102,241,.35);
+        transition: transform .25s, box-shadow .25s;
+    }
+    .hero-cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px rgba(99,102,241,.5);
+        color: #fff;
+    }
+
+    /* ── Flechas ── */
+    .hero-arrow {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        z-index: 10; width: 42px; height: 42px; border-radius: 50%;
+        border: 1px solid transparent;
+        background: transparent; backdrop-filter: blur(0px);
+        color: transparent; font-size: 1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background .25s, border-color .25s, color .25s,
+                    backdrop-filter .25s, transform .25s;
+        outline: none;
+    }
+    .hero-arrow:hover {
+        background: rgba(99,102,241,.5);
+        border-color: var(--accent);
+        color: #fff;
+        backdrop-filter: blur(8px);
+        transform: translateY(-50%) scale(1.1);
+    }
+    .hero-arrow-left  { left: 14px; }
+    .hero-arrow-right { right: 14px; }
+
+    /* ── Dots ── */
+    .hero-dots {
+        position: absolute; bottom: 14px; left: 50%;
+        transform: translateX(-50%); z-index: 10;
+        display: flex; gap: 6px; align-items: center;
+    }
+    .hero-dot {
+        width: 6px; height: 6px; border-radius: 999px;
+        background: rgba(255,255,255,.35); cursor: pointer;
+        border: none; padding: 0;
+        transition: width .35s ease, background .35s ease;
+    }
+    .hero-dot.active { width: 22px; background: var(--accent); }
+
+    /* Responsive */
     @media (max-width: 575.98px) {
         .hero-decoration { display: none; }
-        .hero-subtitle { font-size: .9rem; }
+        .hero-subtitle  { font-size: .875rem; }
+        .hero-arrow     { width: 34px; height: 34px; font-size: .8rem; }
+        .hero-arrow-left  { left: 8px; }
+        .hero-arrow-right { right: 8px; }
     }
 
     /* ── Título sección ── */
@@ -193,18 +277,96 @@
 
 @section('content')
 
-{{-- Hero section (solo sin filtros activos) --}}
+{{-- ══ HERO CAROUSEL (solo sin filtros activos) ══ --}}
 @if(!request()->hasAny(['search','category']))
-<div class="hero-section mb-5">
-    <span class="hero-badge"><i class="bi bi-lightning-charge-fill"></i> Marketplace tech</span>
-    <h1 class="hero-title">Encuentra lo que necesitas,<br>al mejor precio.</h1>
-    <p class="hero-subtitle">Explora nuestra selección de productos tecnológicos con envío rápido y garantía de calidad.</p>
-    <div class="hero-decoration" aria-hidden="true"><i class="bi bi-shop"></i></div>
+<div class="hero-carousel mb-5" id="heroCarousel" aria-label="Banner promocional">
+
+    {{-- Pista de slides --}}
+    <div class="hero-slides-track" id="heroTrack">
+
+        {{-- ── Slide 1: General ── --}}
+        <div class="hero-slide" role="group" aria-label="Slide 1 de 4">
+            <div class="hero-slide-bg"
+                 style="background-image:url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&h=500&fit=crop&auto=format')">
+            </div>
+            <div class="hero-slide-content">
+                <span class="hero-badge"><i class="bi bi-lightning-charge-fill"></i> Marketplace tech</span>
+                <h1 class="hero-title">Encuentra lo que necesitas,<br>al mejor precio.</h1>
+                <p class="hero-subtitle">Explora nuestra selección de productos tecnológicos con envío rápido y garantía de calidad.</p>
+                <a href="#productos" class="hero-cta">
+                    <i class="bi bi-grid"></i> Ver catálogo
+                </a>
+            </div>
+            <div class="hero-decoration" aria-hidden="true"><i class="bi bi-shop"></i></div>
+        </div>
+
+        {{-- ── Slide 2: Electrónica ── --}}
+        <div class="hero-slide" role="group" aria-label="Slide 2 de 4">
+            <div class="hero-slide-bg"
+                 style="background-image:url('https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&h=500&fit=crop&auto=format')">
+            </div>
+            <div class="hero-slide-content">
+                <span class="hero-badge"><i class="bi bi-cpu-fill"></i> Electrónica</span>
+                <h1 class="hero-title">Lo último en<br>tecnología.</h1>
+                <p class="hero-subtitle">Auriculares, smartwatches, teclados mecánicos y más. La mejor selección al mejor precio.</p>
+                <a href="{{ route('products.index', ['category' => 'electronica']) }}" class="hero-cta">
+                    <i class="bi bi-arrow-right-circle"></i> Ver electrónica
+                </a>
+            </div>
+            <div class="hero-decoration" aria-hidden="true"><i class="bi bi-cpu"></i></div>
+        </div>
+
+        {{-- ── Slide 3: Deportes & Moda ── --}}
+        <div class="hero-slide" role="group" aria-label="Slide 3 de 4">
+            <div class="hero-slide-bg"
+                 style="background-image:url('https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1200&h=500&fit=crop&auto=format')">
+            </div>
+            <div class="hero-slide-content">
+                <span class="hero-badge"><i class="bi bi-lightning-fill"></i> Deportes & Moda</span>
+                <h1 class="hero-title">Equípate y<br>marca tendencia.</h1>
+                <p class="hero-subtitle">Zapatillas, ropa premium y mochilas para rendir al máximo dentro y fuera del gimnasio.</p>
+                <a href="{{ route('products.index', ['category' => 'deportes']) }}" class="hero-cta">
+                    <i class="bi bi-arrow-right-circle"></i> Ver deportes
+                </a>
+            </div>
+            <div class="hero-decoration" aria-hidden="true"><i class="bi bi-trophy"></i></div>
+        </div>
+
+        {{-- ── Slide 4: Hogar & Libros ── --}}
+        <div class="hero-slide" role="group" aria-label="Slide 4 de 4">
+            <div class="hero-slide-bg"
+                 style="background-image:url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=500&fit=crop&auto=format')">
+            </div>
+            <div class="hero-slide-content">
+                <span class="hero-badge"><i class="bi bi-house-heart-fill"></i> Hogar & Cultura</span>
+                <h1 class="hero-title">Tu espacio,<br>tu inspiración.</h1>
+                <p class="hero-subtitle">Lámparas, utensilios de cocina y los mejores libros de programación para crecer cada día.</p>
+                <a href="{{ route('products.index', ['category' => 'hogar']) }}" class="hero-cta">
+                    <i class="bi bi-arrow-right-circle"></i> Ver hogar
+                </a>
+            </div>
+            <div class="hero-decoration" aria-hidden="true"><i class="bi bi-book"></i></div>
+        </div>
+
+    </div>{{-- /hero-slides-track --}}
+
+    {{-- Flechas de navegación --}}
+    <button class="hero-arrow hero-arrow-left"  id="heroPrev" aria-label="Slide anterior">&#10094;</button>
+    <button class="hero-arrow hero-arrow-right" id="heroNext" aria-label="Siguiente slide">&#10095;</button>
+
+    {{-- Indicadores de puntos --}}
+    <div class="hero-dots" role="tablist" aria-label="Slides">
+        <button class="hero-dot active" data-index="0" aria-label="Ir al slide 1" role="tab"></button>
+        <button class="hero-dot"        data-index="1" aria-label="Ir al slide 2" role="tab"></button>
+        <button class="hero-dot"        data-index="2" aria-label="Ir al slide 3" role="tab"></button>
+        <button class="hero-dot"        data-index="3" aria-label="Ir al slide 4" role="tab"></button>
+    </div>
+
 </div>
 @endif
 
 {{-- Encabezado + búsqueda --}}
-<div class="products-header row g-3 mb-3">
+<div class="products-header row g-3 mb-3" id="productos">
     <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
         <h2 class="fw-bold mb-0">Nuestros Productos</h2>
         @if($products->total() > 0)
@@ -290,3 +452,72 @@
     <div class="mt-4 aos-item">{{ $products->links() }}</div>
 @endif
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const track  = document.getElementById('heroTrack');
+    if (!track) return;                     // no mostrar si hay filtros activos
+
+    const dots   = document.querySelectorAll('.hero-dot');
+    const total  = dots.length;
+    let   idx    = 0;
+    let   timer  = null;
+
+    /* ── Render: mueve la pista y activa el dot ── */
+    function render() {
+        track.style.transform = `translateX(-${idx * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+
+    /* ── Avanzar ── */
+    function next() {
+        idx = (idx + 1) % total;
+        render();
+    }
+
+    /* ── Navegar manualmente ── */
+    function go(dir) {
+        idx = (idx + dir + total) % total;
+        render();
+        resetTimer();
+    }
+
+    /* ── Reiniciar temporizador ── */
+    function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(next, 4000);
+    }
+
+    /* ── Botones de flecha ── */
+    document.getElementById('heroPrev')?.addEventListener('click', () => go(-1));
+    document.getElementById('heroNext')?.addEventListener('click', () => go(1));
+
+    /* ── Dots ── */
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            idx = parseInt(dot.dataset.index, 10);
+            render();
+            resetTimer();
+        });
+    });
+
+    /* ── Swipe táctil ── */
+    let touchX = 0;
+    track.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend',   e => {
+        const diff = touchX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40) go(diff > 0 ? 1 : -1);
+    }, { passive: true });
+
+    /* ── Pausar al hover ── */
+    const carousel = document.getElementById('heroCarousel');
+    carousel?.addEventListener('mouseenter', () => clearInterval(timer));
+    carousel?.addEventListener('mouseleave', resetTimer);
+
+    /* ── Init ── */
+    render();
+    resetTimer();
+})();
+</script>
+@endpush
