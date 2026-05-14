@@ -1,7 +1,16 @@
 *.log
 .DS_Store
+
+# Variables de entorno (nunca subir al repo)
+.env
+.env.local
 .env.backup
 .env.production
+
+# Base de datos SQLite
+*.db
+*.db-shm
+*.db-wal
 .next/
 .phpactor.json
 .phpunit.result.cache
