@@ -108,6 +108,26 @@ export default async function RootLayout({
           .navbar .nav-link:hover { color: var(--accent) !important; text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent); }
           .navbar .nav-link i { transition: transform .4s; }
           .navbar .nav-link:hover i { transform: rotate(180deg); }
+          .navbar .dropdown-menu {
+            background: var(--surface-solid);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .5rem;
+            box-shadow: 0 12px 32px rgba(0,0,0,.35);
+          }
+          .navbar .dropdown-item {
+            color: var(--text);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+          }
+          .navbar .dropdown-item:hover,
+          .navbar .dropdown-item:focus {
+            background: rgba(255,255,255,.08);
+            color: var(--accent);
+          }
+          .navbar .dropdown-divider { border-color: var(--border); }
           .navbar .badge.bg-danger {
             background: linear-gradient(45deg, var(--btn-from), var(--btn-to)) !important;
             animation: pulse-badge 1.8s ease-in-out infinite;
@@ -244,6 +264,14 @@ export default async function RootLayout({
           .modal-header { border-bottom: 1px solid var(--border) !important; }
           .modal-footer { border-top: 1px solid var(--border) !important; }
           .modal-title { color: var(--text) !important; }
+          .btn-wish { background: transparent; border: 1px solid rgba(248,113,113,.35); color: #f87171; border-radius: 12px; cursor: pointer; transition: background .25s, border-color .25s, transform .25s, box-shadow .25s; }
+          .btn-wish:hover { background: rgba(248,113,113,.15); border-color: #f87171; transform: scale(1.08); }
+          .btn-wish.just-added { background: rgba(248,113,113,.2); border-color: #f87171; box-shadow: 0 4px 14px rgba(248,113,113,.35); }
+          .btn-wish i { transition: transform .3s; }
+          .btn-wish:hover i { transform: scale(1.2); }
+          .btn-wish-card { background: transparent; border: 1px solid rgba(248,113,113,.3); color: #f87171; border-radius: 10px; padding: 5px 9px; font-size: .85rem; line-height: 1; cursor: pointer; transition: background .25s, border-color .25s, transform .2s; }
+          .btn-wish-card:hover { background: rgba(248,113,113,.18); border-color: #f87171; }
+          .btn-wish-card.just-added { background: rgba(248,113,113,.2); border-color: #f87171; box-shadow: 0 2px 8px rgba(248,113,113,.25); }
         `}</style>
       </head>
       <body>
@@ -280,15 +308,41 @@ export default async function RootLayout({
                 </li>
                 {user ? (
                   <>
-                    <li className="nav-item">
-                      <a className="nav-link" href="/mis-pedidos">
-                        <i className="bi bi-box"></i> Mis pedidos
+                    <li className="nav-item dropdown">
+                      <a
+                        className="nav-link dropdown-toggle"
+                        href="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i className="bi bi-person-circle"></i> {user.name}
                       </a>
-                    </li>
-                    <li className="nav-item">
-                      <a className="nav-link" href="/perfil">
-                        <i className="bi bi-person-circle"></i> Mi perfil
-                      </a>
+                      <ul className="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a className="dropdown-item" href="/favoritos">
+                            <i className="bi bi-heart-fill" style={{ color: "var(--danger)" }}></i> Mis favoritos
+                          </a>
+                        </li>
+                        <li>
+                          <a className="dropdown-item" href="/mis-pedidos">
+                            <i className="bi bi-box"></i> Mis pedidos
+                          </a>
+                        </li>
+                        <li>
+                          <a className="dropdown-item" href="/perfil">
+                            <i className="bi bi-person-circle"></i> Mi perfil
+                          </a>
+                        </li>
+                        <li><hr className="dropdown-divider" /></li>
+                        <li>
+                          <form action={logoutAction}>
+                            <button className="dropdown-item" type="submit">
+                              <i className="bi bi-box-arrow-right"></i> Salir
+                            </button>
+                          </form>
+                        </li>
+                      </ul>
                     </li>
                     {user.role === "admin" && (
                       <li className="nav-item">
@@ -297,13 +351,6 @@ export default async function RootLayout({
                         </a>
                       </li>
                     )}
-                    <li className="nav-item">
-                      <form action={logoutAction}>
-                        <button className="btn btn-sm btn-outline-light" type="submit">
-                          <i className="bi bi-box-arrow-right"></i> Salir
-                        </button>
-                      </form>
-                    </li>
                   </>
                 ) : (
                   <>
@@ -356,6 +403,7 @@ export default async function RootLayout({
                 <ul className="list-unstyled d-flex flex-column gap-2 mb-0">
                   <li><a href="/productos" className="footer-link"><i className="bi bi-grid me-1"></i>Productos</a></li>
                   <li><a href="/carrito" className="footer-link"><i className="bi bi-cart3 me-1"></i>Carrito</a></li>
+                  {user && <li><a href="/favoritos" className="footer-link"><i className="bi bi-heart me-1"></i>Mis favoritos</a></li>}
                   {user && <li><a href="/mis-pedidos" className="footer-link"><i className="bi bi-box me-1"></i>Mis pedidos</a></li>}
                 </ul>
               </div>
@@ -369,6 +417,7 @@ export default async function RootLayout({
                     </>
                   ) : (
                     <>
+                      <li><a href="/favoritos" className="footer-link"><i className="bi bi-heart me-1"></i>Mis favoritos</a></li>
                       <li><a href="/mis-pedidos" className="footer-link"><i className="bi bi-receipt me-1"></i>Mis pedidos</a></li>
                       <li><a href="/perfil" className="footer-link"><i className="bi bi-person-circle me-1"></i>Mi perfil</a></li>
                     </>

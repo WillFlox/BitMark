@@ -165,6 +165,26 @@
         /* Icono rota 180° — igual que deco.css */
         .navbar .nav-link i { transition: transform .4s; }
         .navbar .nav-link:hover i { transform: rotate(180deg); }
+        .navbar .dropdown-menu {
+            background: var(--surface-solid);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .5rem;
+            box-shadow: 0 12px 32px rgba(0,0,0,.35);
+        }
+        .navbar .dropdown-item {
+            color: var(--text);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .navbar .dropdown-item:hover,
+        .navbar .dropdown-item:focus {
+            background: rgba(255,255,255,.08);
+            color: var(--accent);
+        }
+        .navbar .dropdown-divider { border-color: var(--border); }
 
         /* Badge carrito */
         .navbar .badge.bg-danger {
@@ -699,15 +719,31 @@
                     </a>
                 </li>
                 @auth
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('orders.index') }}">
-                            <i class="bi bi-box"></i> Mis pedidos
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('profile.edit') }}">
-                            <i class="bi bi-person-circle"></i> Mi perfil
-                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                    <i class="bi bi-box"></i> Mis pedidos
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                    <i class="bi bi-person-circle"></i> Mi perfil
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right"></i> Salir
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
                     @if(auth()->user()->role === 'admin')
                         <li class="nav-item">
@@ -716,14 +752,6 @@
                             </a>
                         </li>
                     @endif
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button class="btn btn-sm btn-outline-light">
-                                <i class="bi bi-box-arrow-right"></i> Salir
-                            </button>
-                        </form>
-                    </li>
                 @else
                     <li class="nav-item">
                         <a class="btn btn-sm btn-outline-light" href="{{ route('login') }}">Iniciar sesión</a>

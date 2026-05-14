@@ -1,7 +1,5 @@
 *.log
 .DS_Store
-.env
-.env.local
 .env.backup
 .env.production
 .next/
@@ -28,6 +26,4 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
-prisma/*.db
-prisma/*.db-journal
 SETUP.md

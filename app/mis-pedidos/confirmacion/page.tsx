@@ -1,22 +1,63 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getStatusLabel, fmt, getImageUrl } from "@/types";
+import { finalizeStripeOrder, finalizeStripePaymentFromIntent } from "@/lib/payments/finalize-stripe-order";
+import { getStatusLabel, getStatusColor, fmt, getImageUrl } from "@/types";
 
 export default async function ConfirmationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{
+    success?: string;
+    session_id?: string;
+    payment_intent?: string;
+    redirect_status?: string;
+  }>;
 }) {
   const sp = await searchParams;
-  const cookieStore = await cookies();
-  const orderIdCookie = cookieStore.get("last_order_id");
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
 
-  if (!orderIdCookie?.value) {
+  const userId = parseInt((session.user as { id: string }).id);
+  let orderId: number | null = null;
+
+  if (sp.payment_intent) {
+    const result = await finalizeStripePaymentFromIntent(sp.payment_intent, userId);
+
+    if (!result.ok) {
+      if (result.reason === "forbidden") {
+        redirect("/productos");
+      }
+      redirect("/checkout?error=No+se+pudo+confirmar+el+pago.+Inténtalo+nuevamente.");
+    }
+
+    orderId = result.orderId;
+  } else if (sp.session_id) {
+    const result = await finalizeStripeOrder(sp.session_id, userId);
+
+    if (!result.ok) {
+      if (result.reason === "forbidden") {
+        redirect("/productos");
+      }
+      redirect("/checkout?error=No+se+pudo+confirmar+el+pago.+Inténtalo+nuevamente.");
+    }
+
+    orderId = result.orderId;
+  } else {
+    const cookieStore = await cookies();
+    const orderIdCookie = cookieStore.get("last_order_id");
+    if (orderIdCookie?.value) {
+      orderId = parseInt(orderIdCookie.value);
+    }
+  }
+
+  if (!orderId) {
     redirect("/productos");
   }
 
-  const orderId = parseInt(orderIdCookie.value);
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
@@ -26,7 +67,9 @@ export default async function ConfirmationPage({
     },
   });
 
-  if (!order) redirect("/productos");
+  if (!order || order.userId !== userId) {
+    redirect("/productos");
+  }
 
   return (
     <>
@@ -51,7 +94,9 @@ export default async function ConfirmationPage({
           <div className="card border-0 shadow-sm confirmation-card">
             <div className="card-header d-flex justify-content-between align-items-center">
               <span><i className="bi bi-receipt me-2"></i>Pedido #{order.id}</span>
-              <span className={`badge bg-warning`}>{getStatusLabel(order.status)}</span>
+              <span className={`badge bg-${getStatusColor(order.status)}`}>
+                {getStatusLabel(order.status)}
+              </span>
             </div>
             <div className="card-body">
               {order.items.map((item) => (

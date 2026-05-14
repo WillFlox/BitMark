@@ -13,9 +13,11 @@ model User {
   email     String   @unique
   password  String
   role      String   @default("customer")
+  stripeCustomerId String? @unique @map("stripe_customer_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   orders    Order[]
+  wishlistItems WishlistItem[]
 
   @@map("users")
 }
@@ -32,19 +34,24 @@ model Category {
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
-  categoryId  Int         @map("category_id")
-  name        String
-  slug        String      @unique
-  description String?
-  price       Float
-  stock       Int         @default(0)
-  image       String?
-  active      Boolean     @default(true)
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  category    Category    @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItem[]
+  id           Int         @id @default(autoincrement())
+  categoryId   Int         @map("category_id")
+  name         String
+  slug         String      @unique
+  description  String?
+  price        Float       @default(0)
+  stock        Int         @default(0)
+  image        String?
+  active       Boolean     @default(true)
+  productType  String      @default("physical") @map("product_type")
+  externalUrl  String?     @map("external_url")
+  provider     String?
+  tags         String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  category      Category       @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
 
   @@map("products")
 }
@@ -94,6 +101,7 @@ model Order {
   shippingAddress  String         @map("shipping_address")
   shippingCity     String         @map("shipping_city")
   shippingPhone    String         @map("shipping_phone")
+  stripeSessionId  String?        @unique @map("stripe_session_id")
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")
   user             User           @relation(fields: [userId], references: [id])
@@ -117,4 +125,16 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
 
   @@map("order_items")
+}
+
+model WishlistItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  productId Int      @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
 }

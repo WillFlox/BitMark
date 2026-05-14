@@ -37,6 +37,10 @@ export async function addToCart(formData: FormData) {
     redirect("/carrito?error=Producto+no+encontrado");
   }
 
+  if (product.productType === "external_game") {
+    redirect("/carrito?error=Los+juegos+externos+no+se+agregan+al+carrito");
+  }
+
   const cart = await getCart();
   const existingIndex = cart.findIndex((i) => i.id === productId);
 

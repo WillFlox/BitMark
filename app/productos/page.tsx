@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getImageUrl, fmt } from "@/types";
 import { addToCart } from "@/lib/actions/cart";
+import { WishlistButton } from "@/components/WishlistButton";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -48,7 +49,7 @@ export default async function ProductsPage({
     prisma.product.count({ where }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.aggregate({
-      where: { active: true },
+      where: { active: true, productType: { not: "external_game" } },
       _min: { price: true },
       _max: { price: true },
     }),
@@ -127,6 +128,7 @@ export default async function ProductsPage({
               { bg: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&h=500&fit=crop&auto=format", badge: "bi-cpu-fill", badgeText: "Electrónica", title: "Lo último en\ntecnología.", subtitle: "Auriculares, smartwatches, teclados mecánicos y más.", href: "/productos?category=electronica", btnText: "Ver electrónica", btnIcon: "bi-arrow-right-circle", deco: "bi-cpu", catSlug: "electronica" },
               { bg: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1200&h=500&fit=crop&auto=format", badge: "bi-lightning-fill", badgeText: "Deportes & Moda", title: "Equípate y\nmarca tendencia.", subtitle: "Zapatillas, ropa premium y mochilas para rendir al máximo.", href: "/productos?category=deportes", btnText: "Ver deportes", btnIcon: "bi-arrow-right-circle", deco: "bi-trophy", catSlug: "deportes" },
               { bg: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=500&fit=crop&auto=format", badge: "bi-house-heart-fill", badgeText: "Hogar & Cultura", title: "Tu espacio,\ntu inspiración.", subtitle: "Lámparas, utensilios de cocina y los mejores libros.", href: "/productos?category=hogar", btnText: "Ver hogar", btnIcon: "bi-arrow-right-circle", deco: "bi-book", catSlug: "hogar" },
+              { bg: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1200&h=500&fit=crop&auto=format", badge: "bi-controller", badgeText: "Videojuegos Web3", title: "Juega en la\nblockchain, gratis.", subtitle: "Outer Ring MMO y RacerLoop en SKALE: zero gas, play-to-earn y economía de jugadores.", href: "/productos?category=videojuegos", btnText: "Ver juegos", btnIcon: "bi-play-circle-fill", deco: "bi-joystick", catSlug: "videojuegos" },
             ].map((slide, i) => (
               <div key={i} className="hero-slide" role="group" aria-label={`Slide ${i + 1} de 4`}>
                 <div className="hero-slide-bg" style={{ backgroundImage: `url('${slide.bg}')` }}></div>
@@ -143,7 +145,7 @@ export default async function ProductsPage({
           <button className="hero-arrow hero-arrow-left" id="heroPrev" aria-label="Slide anterior">&#10094;</button>
           <button className="hero-arrow hero-arrow-right" id="heroNext" aria-label="Siguiente slide">&#10095;</button>
           <div className="hero-dots" role="tablist">
-            {[0, 1, 2, 3].map((i) => (
+            {[0, 1, 2, 3, 4].map((i) => (
               <button key={i} className={`hero-dot${i === 0 ? " active" : ""}`} data-index={i} aria-label={`Ir al slide ${i + 1}`} role="tab"></button>
             ))}
           </div>
@@ -211,23 +213,53 @@ export default async function ProductsPage({
                     <img src={getImageUrl(product.image, product.name)} alt={product.name} loading="lazy" />
                   </div>
                   <div className="card-body d-flex flex-column gap-1">
-                    <span className="badge bg-secondary mb-1 align-self-start">{product.category.name}</span>
+                    <div className="d-flex align-items-center gap-1 flex-wrap mb-1">
+                      <span className="badge bg-secondary align-self-start">{product.category.name}</span>
+                      {product.productType === "external_game" && (
+                        <span className="badge align-self-start" style={{ background: "linear-gradient(45deg,#7c3aed,#2563eb)", fontSize: ".65rem", letterSpacing: ".04em" }}>
+                          <i className="bi bi-controller me-1"></i>Free to Play
+                        </span>
+                      )}
+                    </div>
                     <h6 className="card-title fw-bold mb-1">{product.name}</h6>
                     {product.description && (
                       <p className="card-text small text-muted desc-clamp mb-1">{product.description}</p>
                     )}
-                    <p className="card-text price-tag fw-bold fs-5 mb-1 mt-auto">${fmt(product.price)}</p>
-                    <p className="card-text small text-muted mb-0">
-                      {product.stock > 0 ? (
-                        <><i className="bi bi-check-circle-fill text-success"></i> {product.stock} en stock</>
-                      ) : (
-                        <><i className="bi bi-x-circle-fill text-danger"></i> Sin stock</>
-                      )}
-                    </p>
+                    {product.productType === "external_game" ? (
+                      <>
+                        {product.provider && (
+                          <p className="card-text small mb-1 mt-auto" style={{ color: "var(--accent)" }}>
+                            <i className="bi bi-broadcast me-1"></i>{product.provider} · SKALE · Zero Gas
+                          </p>
+                        )}
+                        {product.tags && (
+                          <div className="d-flex flex-wrap gap-1 mb-1">
+                            {product.tags.split(",").slice(0, 3).map((tag) => (
+                              <span key={tag} className="badge" style={{ background: "rgba(99,102,241,.15)", color: "#818cf8", border: "1px solid rgba(99,102,241,.25)", fontWeight: 500, fontSize: ".65rem" }}>{tag.trim()}</span>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p className="card-text price-tag fw-bold fs-5 mb-1 mt-auto">${fmt(product.price)}</p>
+                        <p className="card-text small text-muted mb-0">
+                          {product.stock > 0 ? (
+                            <><i className="bi bi-check-circle-fill text-success"></i> {product.stock} en stock</>
+                          ) : (
+                            <><i className="bi bi-x-circle-fill text-danger"></i> Sin stock</>
+                          )}
+                        </p>
+                      </>
+                    )}
                   </div>
                   <div className="card-footer bg-transparent border-0 d-flex gap-2">
                     <a href={`/productos/${product.slug}`} className="btn btn-outline-primary btn-sm flex-fill">Ver detalle</a>
-                    {product.stock > 0 ? (
+                    {product.productType === "external_game" ? (
+                      <a href={product.externalUrl ?? "#"} target="_blank" rel="noopener noreferrer" className="btn btn-sm" style={{ background: "linear-gradient(45deg,#7c3aed,#2563eb)", color: "#fff", whiteSpace: "nowrap" }} title="Jugar en Blink Galaxy">
+                        <i className="bi bi-play-fill"></i>
+                      </a>
+                    ) : product.stock > 0 ? (
                       <form action={addToCart}>
                         <input type="hidden" name="product_id" value={product.id} />
                         <input type="hidden" name="quantity" value="1" />
@@ -238,6 +270,7 @@ export default async function ProductsPage({
                     ) : (
                       <button className="btn btn-secondary btn-sm" disabled>Agotado</button>
                     )}
+                    <WishlistButton productId={product.id} />
                   </div>
                 </div>
               </div>

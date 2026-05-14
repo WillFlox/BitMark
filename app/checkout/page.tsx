@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { CartItem } from "@/types";
-import { checkoutAction } from "@/lib/actions/checkout";
 import { calcDiscount } from "@/lib/discount";
 import CheckoutForm from "./_components/CheckoutForm";
 
@@ -62,6 +61,7 @@ export default async function CheckoutPage({
   const coupon = couponCodeRaw ? await getAppliedCouponData(subtotal, couponCodeRaw) : null;
   const discountAmount = coupon?.discountAmount ?? 0;
   const subtotalAfterDiscount = subtotal - discountAmount;
+  const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? null;
 
   return (
     <>
@@ -106,7 +106,7 @@ export default async function CheckoutPage({
               }
             : null
         }
-        checkoutAction={checkoutAction}
+        stripePublishableKey={stripePublishableKey}
       />
     </>
   );

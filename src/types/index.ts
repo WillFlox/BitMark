@@ -15,6 +15,7 @@ export interface SessionUser {
 
 export function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
+    awaiting_payment: "Pago pendiente",
     pending: "Pendiente",
     processing: "Procesando",
     shipped: "Enviado",
@@ -26,6 +27,7 @@ export function getStatusLabel(status: string): string {
 
 export function getStatusColor(status: string): string {
   const colors: Record<string, string> = {
+    awaiting_payment: "secondary",
     pending: "warning",
     processing: "info",
     shipped: "primary",
