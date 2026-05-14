@@ -1,0 +1,98 @@
+/* LOGO CONTAINER */
+
+.logo-nav-link{
+    position:relative;
+    display:flex;
+    align-items:center;
+    cursor:pointer;
+}
+
+/* wrapper */
+.logo-wrapper{
+    position:relative;
+    display:inline-block;
+    padding:10px 18px;
+}
+
+/* TEXT LOGO */
+.logo-img{
+    font-size:28px;
+    font-weight:800;
+    color:white;
+    position:relative;
+    z-index:5;
+    transition:0.35s;
+}
+
+/* =========================
+   RINGS (NEON CIRCLES)
+========================= */
+
+.logo-ring-1,
+.logo-ring-2{
+    position:absolute;
+    inset:-10px;
+    border-radius:14px;
+    border:1px solid rgba(138,60,255,0.3);
+    opacity:0;
+    transform:scale(0.8);
+    transition:0.35s;
+}
+
+.logo-ring-2{
+    inset:-18px;
+    border:1px solid rgba(0,229,255,0.2);
+}
+
+/* =========================
+   SCAN LINE
+========================= */
+
+.logo-scan{
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:2px;
+    opacity:0;
+    z-index:4;
+
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgb(138, 60, 255),
+        rgb(0, 229, 255),
+        transparent
+    );
+}
+
+/* ANIMATION */
+@keyframes logo-scan-sweep {
+  0% { top: 0px; opacity: 0.9; }
+  50% { top: 100%; opacity: 0.5; }
+  100% { top: 0px; opacity: 0; }
+}
+
+/* =========================
+   HOVER EFFECTS
+========================= */
+
+.logo-nav-link:hover .logo-scan {
+  opacity: 1;
+  animation: logo-scan-sweep 1s ease-in-out infinite;
+}
+
+.logo-nav-link:hover .logo-img {
+  filter:
+    brightness(1.15)
+    drop-shadow(0 0 8px rgba(138,60,255,0.7))
+    drop-shadow(0 0 20px rgba(0,229,255,0.3));
+
+  transform: scale(1.04);
+}
+
+.logo-nav-link:hover .logo-ring-1,
+.logo-nav-link:hover .logo-ring-2 {
+  opacity: 1;
+  transform: scale(1);
+}
