@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getImageUrl, fmt } from "@/types";
 import { addToCart } from "@/lib/actions/cart";
 import { WishlistButton } from "@/components/WishlistButton";
+import { CameraSearch } from "@/components/CameraSearch";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -128,7 +129,7 @@ export default async function ProductsPage({
               { bg: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&h=500&fit=crop&auto=format", badge: "bi-cpu-fill", badgeText: "Electrónica", title: "Lo último en\ntecnología.", subtitle: "Auriculares, smartwatches, teclados mecánicos y más.", href: "/productos?category=electronica", btnText: "Ver electrónica", btnIcon: "bi-arrow-right-circle", deco: "bi-cpu", catSlug: "electronica" },
               { bg: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1200&h=500&fit=crop&auto=format", badge: "bi-lightning-fill", badgeText: "Deportes & Moda", title: "Equípate y\nmarca tendencia.", subtitle: "Zapatillas, ropa premium y mochilas para rendir al máximo.", href: "/productos?category=deportes", btnText: "Ver deportes", btnIcon: "bi-arrow-right-circle", deco: "bi-trophy", catSlug: "deportes" },
               { bg: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=500&fit=crop&auto=format", badge: "bi-house-heart-fill", badgeText: "Hogar & Cultura", title: "Tu espacio,\ntu inspiración.", subtitle: "Lámparas, utensilios de cocina y los mejores libros.", href: "/productos?category=hogar", btnText: "Ver hogar", btnIcon: "bi-arrow-right-circle", deco: "bi-book", catSlug: "hogar" },
-              { bg: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1200&h=500&fit=crop&auto=format", badge: "bi-controller", badgeText: "Videojuegos Web3", title: "Juega en la\nblockchain, gratis.", subtitle: "Outer Ring MMO y RacerLoop en SKALE: zero gas, play-to-earn y economía de jugadores.", href: "/productos?category=videojuegos", btnText: "Ver juegos", btnIcon: "bi-play-circle-fill", deco: "bi-joystick", catSlug: "videojuegos" },
+              { bg: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1200&h=500&fit=crop&auto=format", badge: "bi-controller", badgeText: "Videojuegos Web3", title: "Juega en \nBlink Galaxy, gratis.", subtitle: "Outer Ring MMO y RacerLoop en SKALE: zero gas, play-to-earn y economía de jugadores.", href: "/productos?category=videojuegos", btnText: "Ver juegos", btnIcon: "bi-play-circle-fill", deco: "bi-joystick", catSlug: "videojuegos" },
             ].map((slide, i) => (
               <div key={i} className="hero-slide" role="group" aria-label={`Slide ${i + 1} de 4`}>
                 <div className="hero-slide-bg" style={{ backgroundImage: `url('${slide.bg}')` }}></div>
@@ -154,7 +155,10 @@ export default async function ProductsPage({
 
       <div className="products-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3" id="productos">
         <h2 className="fw-bold mb-0">Nuestros Productos</h2>
-        {total > 0 && <span className="text-muted small">{total} {total === 1 ? "producto" : "productos"}</span>}
+        <div className="d-flex align-items-center gap-3">
+          {total > 0 && <span className="text-muted small">{total} {total === 1 ? "producto" : "productos"}</span>}
+          <CameraSearch />
+        </div>
       </div>
 
       <form action="/productos" method="GET" className="filter-panel mb-4">

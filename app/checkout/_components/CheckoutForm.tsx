@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { fmt } from "@/types";
+import { fmt, getImageUrl } from "@/types";
 import { prepareCheckoutPayment } from "@/lib/actions/prepare-checkout-payment";
 import StripePaymentStep from "./StripePaymentStep";
 
@@ -18,6 +18,7 @@ type CartLine = {
   name: string;
   price: number;
   quantity: number;
+  image: string | null;
 };
 
 type CouponSummary = {
@@ -113,14 +114,28 @@ export default function CheckoutForm({
         <div className="card border-0 shadow-sm checkout-summary-sticky" style={{ top: 80 }}>
           <div className="card-header fw-bold">Resumen del pedido</div>
           <div className="card-body">
-            {cart.map((item) => (
-              <div key={item.id} className="d-flex justify-content-between small mb-1 gap-2">
-                <span className="text-truncate">
-                  {item.name} × {item.quantity}
-                </span>
-                <span className="flex-shrink-0">${fmt(item.price * item.quantity)}</span>
-              </div>
-            ))}
+            {cart.map((item) => {
+              const imgSrc = getImageUrl(item.image, item.name);
+
+              return (
+                <div key={item.id} className="checkout-item d-flex gap-2 mb-2">
+                  <img
+                    src={imgSrc}
+                    alt={item.name}
+                    className="checkout-item-thumb flex-shrink-0"
+                  />
+                  <div className="flex-grow-1 min-w-0">
+                    <div className="d-flex justify-content-between gap-2 checkout-item-line small">
+                      <span className="text-truncate">
+                        {item.name} × {item.quantity}
+                      </span>
+                      <span className="flex-shrink-0">${fmt(item.price * item.quantity)}</span>
+                    </div>
+                    <small className="text-muted d-block">${fmt(item.price)} c/u</small>
+                  </div>
+                </div>
+              );
+            })}
             <hr />
             <div className="d-flex justify-content-between mb-1">
               <span>Subtotal</span>

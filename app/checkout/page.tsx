@@ -66,10 +66,17 @@ export default async function CheckoutPage({
   return (
     <>
       <style>{`
-        .checkout-title { animation: fadeInLeft .5s ease both; background: linear-gradient(45deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .checkout-col-left  { animation: fadeInLeft .5s .1s ease both; }
-        .checkout-col-right { animation: fadeInRight .5s .15s ease both; }
+        .checkout-title { animation: fadeInLeft .5s ease both; }
+        .checkout-title-text { background: linear-gradient(45deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .checkout-title .bi { color: #818cf8; -webkit-text-fill-color: #818cf8; }
+        .checkout-col-left  { animation: fadeInLeft .5s .1s ease both; opacity: 1; }
+        .checkout-col-right { animation: fadeInRight .5s .15s ease both; opacity: 1; }
         .checkout-total { background: linear-gradient(45deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 1.4rem; }
+        .checkout-summary-sticky .card-body,
+        .checkout-summary-sticky .card-body .small,
+        .checkout-summary-sticky .card-body strong,
+        .checkout-summary-sticky .checkout-item-line { color: var(--text) !important; -webkit-text-fill-color: currentColor; }
+        .checkout-item-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,.08); background: rgba(15,23,42,.8); }
         .method-option { position: relative; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; background: rgba(15,23,42,.5); transition: background .3s, border-color .3s, transform .2s; cursor: pointer; }
         .method-option:hover { background: rgba(129,140,248,.1); border-color: #818cf8; transform: translateX(4px); }
         .method-option.is-selected { background: rgba(99,102,241,.15); border-color: #818cf8; box-shadow: 0 0 15px rgba(129,140,248,.2); }
@@ -81,7 +88,12 @@ export default async function CheckoutPage({
         @media (max-width: 991.98px) { .checkout-summary-sticky { position: relative !important; top: auto !important; } }
       `}</style>
 
-      <h2 className="fw-bold mb-4 checkout-title"><i className="bi bi-credit-card"></i> Checkout</h2>
+      <h2 className="fw-bold mb-4 checkout-title">
+        <span className="checkout-title-text">
+          <i className="bi bi-credit-card me-2"></i>
+          Checkout
+        </span>
+      </h2>
 
       {sp.error && (
         <div className="alert alert-danger alert-dismissible fade show">

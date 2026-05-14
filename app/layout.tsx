@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { CartItem, SessionUser } from "@/types";
 import "./globals.css";
 import { logoutAction } from "@/lib/actions/auth";
+import HamburgerButton from "./components/HamburgerButton";
 
 export const metadata: Metadata = {
   title: "BitMark — Marketplace",
@@ -132,8 +133,8 @@ export default async function RootLayout({
             background: linear-gradient(45deg, var(--btn-from), var(--btn-to)) !important;
             animation: pulse-badge 1.8s ease-in-out infinite;
           }
-          .navbar-toggler { border-color: var(--border); }
-          .navbar-toggler-icon { filter: invert(1); }
+          .navbar-toggler { border-color: var(--border); outline: none !important; box-shadow: none !important; }
+          .navbar-toggler:focus { box-shadow: 0 0 0 2px rgba(129,140,248,.35) !important; }
           .btn {
             position: relative; overflow: hidden; border-radius: 12px; font-size: 15px;
             transition: transform .4s, box-shadow .4s, background-position .4s !important;
@@ -285,9 +286,7 @@ export default async function RootLayout({
                 <div className="logo-scan"></div>
               </div>
             </a>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-              <span className="navbar-toggler-icon"></span>
-            </button>
+            <HamburgerButton />
             <div className="collapse navbar-collapse" id="navMenu">
               <ul className="navbar-nav me-auto">
                 <li className="nav-item">

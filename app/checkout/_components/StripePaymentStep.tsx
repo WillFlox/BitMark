@@ -147,8 +147,24 @@ export default function StripePaymentStep({
         colorPrimary: "#818cf8",
         colorBackground: "#1e293b",
         colorText: "#ffffff",
+        colorTextSecondary: "#cbd5e1",
+        colorTextPlaceholder: "#94a3b8",
         colorDanger: "#f87171",
         borderRadius: "10px",
+      },
+      rules: {
+        ".AccordionItem": {
+          borderColor: "rgba(255,255,255,0.12)",
+          backgroundColor: "rgba(15,23,42,0.8)",
+        },
+        ".Input": {
+          backgroundColor: "rgba(15,23,42,0.95)",
+          borderColor: "rgba(255,255,255,0.12)",
+          color: "#ffffff",
+        },
+        ".Label": {
+          color: "#cbd5e1",
+        },
       },
     },
   };
