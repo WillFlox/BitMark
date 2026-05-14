@@ -1,58 +1,101 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BitMarket
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Tienda en línea construida con Next.js. Incluye catálogo de productos, carrito, checkout con Stripe, panel de administración, cupones, lista de favoritos y recomendaciones por imagen con Google Gemini.
 
-## About Laravel
+## Características
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Catálogo público con categorías, detalle de producto y búsqueda por cámara
+- Carrito, checkout y pedidos para usuarios autenticados
+- Pagos con Stripe y confirmación por correo (SMTP)
+- Panel de administración para productos, pedidos y cupones
+- Cupones de descuento y métodos de envío configurables
+- Lista de favoritos por usuario
+- Recomendaciones de productos a partir de una imagen (`/api/ai-recommend`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Next.js 15](https://nextjs.org/) (App Router) y React 19
+- [Prisma](https://www.prisma.io/) con SQLite
+- [NextAuth.js](https://authjs.dev/) para autenticación
+- [Stripe](https://stripe.com/) para pagos
+- [Google Generative AI](https://ai.google.dev/) (Gemini) para recomendaciones visuales
 
-## Learning Laravel
+## Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Node.js 18 o superior
+- npm
+- Cuenta de Stripe (modo prueba para desarrollo)
+- Opcional: clave de Gemini para la búsqueda por imagen; SMTP para correos de pedido
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalación local
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <url-del-repositorio>
+cd BitMarket
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Copia las variables de entorno y ajústalas:
 
-## Contributing
+```bash
+cp .env.example .env.local
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Crea la base de datos y carga datos de ejemplo:
 
-## Code of Conduct
+```bash
+npm run db:push
+npm run db:seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Inicia el servidor de desarrollo:
 
-## Security Vulnerabilities
+```bash
+npm run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+La aplicación queda disponible en [http://localhost:3000](http://localhost:3000). La ruta raíz redirige a `/productos`.
 
-## License
+## Variables de entorno
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Variable | Descripción |
+| --- | --- |
+| `DATABASE_URL` | URL de Prisma (por defecto SQLite local: `file:./dev.db`) |
+| `AUTH_SECRET` | Secreto para firmar sesiones de NextAuth |
+| `NEXTAUTH_URL` / `AUTH_URL` | URL pública de la app |
+| `AUTH_TRUST_HOST` | `true` detrás de proxy o túnel (ngrok, Railway, etc.) |
+| `STRIPE_SECRET_KEY` | Clave secreta de Stripe |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Clave publicable de Stripe |
+| `STRIPE_WEBHOOK_SECRET` | Secreto del webhook de Stripe |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Envío de correos |
+| `GEMINI_API_KEY` | Opcional; habilita recomendaciones por imagen |
+
+## Scripts
+
+| Comando | Uso |
+| --- | --- |
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Compilación de producción |
+| `npm run start` | Servidor en producción |
+| `npm run db:push` | Sincroniza el esquema Prisma con la base de datos |
+| `npm run db:seed` | Carga usuarios, categorías y productos de ejemplo |
+| `npm run db:studio` | Abre Prisma Studio |
+
+## Cuentas de demostración
+
+Tras ejecutar el seed:
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| Administrador | `admin@marketplace.com` | `password` |
+| Cliente | `cliente@marketplace.com` | `password` |
+
+Las rutas bajo `/admin` exigen rol `admin`. `/checkout`, `/mis-pedidos` y `/perfil` requieren sesión iniciada.
+
+## Despliegue
+
+El proyecto incluye configuración para [Railway](https://railway.app/) en `railway.json`: genera el cliente Prisma, compila la app y aplica el esquema con `prisma db push` al arrancar. Configura en el entorno de despliegue las mismas variables que en `.env.local` y la URL pública coherente con `AUTH_URL` / `NEXTAUTH_URL`.
+
+## Documentación adicional
+
+- Recomendación por imagen: [docs/ai-recomendacion-por-imagen.md](docs/ai-recomendacion-por-imagen.md)
