@@ -105,12 +105,16 @@ Si no encuentras ningún producto relacionado, devuelve el JSON con "recommendat
     if (error && typeof error === "object") {
       const err = error as Record<string, unknown>;
       const status = err.status as number | undefined;
-      if (status === 429) {
+      if (status === 400) {
+        message = "API key expirada o inválida. Genera una nueva key en aistudio.google.com y actualiza GEMINI_API_KEY en .env.local.";
+      } else if (status === 429) {
         message = "Límite de uso de la API alcanzado. Verifica tu cuota en aistudio.google.com o intenta más tarde.";
       } else if (status === 403) {
-        message = "API key inválida o sin permisos. Verifica tu GEMINI_API_KEY.";
+        message = "API key sin permisos o reportada como filtrada. Genera una nueva key en aistudio.google.com.";
       } else if (status === 404) {
         message = "Modelo de IA no disponible. Actualiza el modelo en la configuración.";
+      } else if (status === 503) {
+        message = "El modelo de IA está experimentando alta demanda en este momento. Intenta de nuevo en unos segundos.";
       }
     }
 

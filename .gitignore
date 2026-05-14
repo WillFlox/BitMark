@@ -2,10 +2,10 @@
 .DS_Store
 
 # Variables de entorno (nunca subir al repo)
-.env
-.env.local
-.env.backup
-.env.production
+#.env
+#.env.local
+#.env.backup
+#.env.production
 
 # Base de datos SQLite
 *.db
