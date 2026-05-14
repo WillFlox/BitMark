@@ -163,7 +163,6 @@
     }
 
     /* ── Barra de búsqueda ── */
-    .search-bar-wrap { animation: fadeInUp .5s .1s ease both; }
     .search-input-group {
         position: relative;
         flex: 1;
@@ -181,8 +180,46 @@
         padding-left: 38px;
     }
 
-    /* ── Category chips ── */
-    .category-chips { animation: fadeInUp .45s .15s ease both; }
+    /* ── Panel de filtros unificado ── */
+    .filter-panel {
+        background: rgba(255,255,255,.03);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        animation: fadeInUp .45s .1s ease both;
+        margin-bottom: 1.5rem;
+    }
+    .filter-search-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+    }
+    .filter-body {
+        display: flex;
+        align-items: flex-start;
+        gap: 0;
+    }
+    .filter-section {
+        flex: 1;
+        padding: 14px 18px;
+    }
+    .filter-section + .filter-section {
+        border-left: 1px solid var(--border);
+    }
+    .filter-label {
+        display: block;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+    }
+
+    /* ── Chips ── */
     .chip {
         display: inline-flex;
         align-items: center;
@@ -195,8 +232,10 @@
         background: transparent;
         color: var(--text-muted);
         text-decoration: none;
+        cursor: pointer;
         transition: color .2s, border-color .2s, background .2s, transform .2s;
         white-space: nowrap;
+        line-height: 1.4;
     }
     .chip:hover {
         color: var(--accent);
@@ -211,6 +250,35 @@
         box-shadow: 0 4px 14px rgba(99,102,241,.35);
     }
     .chip.active:hover { transform: translateY(-1px); color: #fff; }
+
+    /* ── Precio ── */
+    .price-inputs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+    .price-inputs .price-sep {
+        color: var(--text-muted);
+        font-size: .85rem;
+        white-space: nowrap;
+    }
+    .price-inputs .form-control {
+        width: 110px;
+        min-width: 72px;
+    }
+    .price-inputs .price-icon {
+        color: #818cf8;
+        font-size: .9rem;
+        flex-shrink: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 767.98px) {
+        .filter-body { flex-direction: column; }
+        .filter-section + .filter-section { border-left: none; border-top: 1px solid var(--border); }
+        .price-inputs .form-control { width: 90px; }
+    }
 
     /* ── Imagen con overflow para zoom ── */
     .product-card .img-wrap {
@@ -272,13 +340,14 @@
         color: #818cf8 !important;
         animation: float 3s ease-in-out infinite;
     }
+
 </style>
 @endpush
 
 @section('content')
 
 {{-- ══ HERO CAROUSEL (solo sin filtros activos) ══ --}}
-@if(!request()->hasAny(['search','category']))
+@if(!request()->hasAny(['search','category','min_price','max_price']))
 <div class="hero-carousel mb-5" id="heroCarousel" aria-label="Banner promocional">
 
     {{-- Pista de slides --}}
@@ -365,44 +434,71 @@
 </div>
 @endif
 
-{{-- Encabezado + búsqueda --}}
-<div class="products-header row g-3 mb-3" id="productos">
-    <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <h2 class="fw-bold mb-0">Nuestros Productos</h2>
-        @if($products->total() > 0)
-            <span class="text-muted small">{{ $products->total() }} {{ $products->total() == 1 ? 'producto' : 'productos' }}</span>
-        @endif
-    </div>
-    <div class="col-12 search-bar-wrap">
-        <form action="{{ route('products.index') }}" method="GET" class="d-flex gap-2 flex-wrap">
-            <input type="hidden" name="category" value="{{ request('category') }}">
-            <div class="search-input-group flex-grow-1" style="min-width:200px">
-                <i class="bi bi-search"></i>
-                <input type="text" name="search" class="form-control" placeholder="Buscar producto..." value="{{ request('search') }}">
-            </div>
-            <button class="btn btn-primary px-3"><i class="bi bi-search me-1"></i><span class="d-none d-sm-inline">Buscar</span></button>
-            @if(request()->hasAny(['search','category']))
-                <a href="{{ route('products.index') }}" class="btn btn-outline-secondary" title="Limpiar filtros">
-                    <i class="bi bi-x-lg"></i>
-                </a>
-            @endif
-        </form>
-    </div>
+{{-- Encabezado --}}
+<div class="products-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3" id="productos">
+    <h2 class="fw-bold mb-0">Nuestros Productos</h2>
+    @if($products->total() > 0)
+        <span class="text-muted small">{{ $products->total() }} {{ $products->total() == 1 ? 'producto' : 'productos' }}</span>
+    @endif
 </div>
 
-{{-- Chips de categoría --}}
-<div class="category-chips d-flex flex-wrap gap-2 mb-4">
-    <a href="{{ route('products.index', request('search') ? ['search' => request('search')] : []) }}"
-       class="chip {{ !request('category') ? 'active' : '' }}">
-        <i class="bi bi-grid-3x3-gap-fill"></i> Todas
-    </a>
-    @foreach($categories as $cat)
-        <a href="{{ route('products.index', array_filter(['category' => $cat->slug, 'search' => request('search')])) }}"
-           class="chip {{ request('category') == $cat->slug ? 'active' : '' }}">
-            {{ $cat->name }}
-        </a>
-    @endforeach
-</div>
+{{-- Panel de filtros unificado --}}
+<form action="{{ route('products.index') }}" method="GET" class="filter-panel mb-4">
+
+    {{-- Fila de búsqueda --}}
+    <div class="filter-search-row">
+        <div class="search-input-group flex-grow-1" style="min-width:200px">
+            <i class="bi bi-search"></i>
+            <input type="text" name="search" class="form-control"
+                   placeholder="Buscar producto..." value="{{ request('search') }}">
+        </div>
+        <button class="btn btn-primary px-3">
+            <i class="bi bi-search me-1"></i><span class="d-none d-sm-inline">Buscar</span>
+        </button>
+        @if(request()->hasAny(['search','category','min_price','max_price']))
+            <a href="{{ route('products.index') }}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        @endif
+    </div>
+
+    {{-- Cuerpo: categorías + precio --}}
+    <div class="filter-body">
+
+        {{-- Categorías --}}
+        <div class="filter-section">
+            <span class="filter-label"><i class="bi bi-grid me-1"></i>Categoría</span>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="submit" name="category" value=""
+                        class="chip {{ !request('category') ? 'active' : '' }}">
+                    <i class="bi bi-grid-3x3-gap-fill"></i> Todas
+                </button>
+                @foreach($categories as $cat)
+                    <button type="submit" name="category" value="{{ $cat->slug }}"
+                            class="chip {{ request('category') == $cat->slug ? 'active' : '' }}">
+                        {{ $cat->name }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Precio --}}
+        <div class="filter-section" style="flex: 0 0 auto; min-width: 260px;">
+            <span class="filter-label"><i class="bi bi-tag me-1"></i>Rango de precio</span>
+            <div class="price-inputs">
+                <i class="bi bi-currency-dollar price-icon"></i>
+                <input type="number" name="min_price" class="form-control"
+                       placeholder="Mín" value="{{ request('min_price') }}"
+                       min="0" step="0.01" title="Precio mínimo">
+                <span class="price-sep">—</span>
+                <input type="number" name="max_price" class="form-control"
+                       placeholder="Máx" value="{{ request('max_price') }}"
+                       min="0" step="0.01" title="Precio máximo">
+            </div>
+        </div>
+
+    </div>
+</form>
 
 @if($products->isEmpty())
     <div class="text-center py-5">

@@ -20,10 +20,21 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $products   = $query->latest()->paginate(12);
-        $categories = Category::all();
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', (float) $request->min_price);
+        }
 
-        return view('products.index', compact('products', 'categories'));
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', (float) $request->max_price);
+        }
+
+        $products    = $query->latest()->paginate(12)->withQueryString();
+        $categories  = Category::all();
+        $priceStats  = Product::where('active', true)
+                              ->selectRaw('MIN(price) as min_val, MAX(price) as max_val')
+                              ->first();
+
+        return view('products.index', compact('products', 'categories', 'priceStats'));
     }
 
     public function show(Product $product)

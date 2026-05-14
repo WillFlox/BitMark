@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("customer")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  orders    Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  categoryId  Int         @map("category_id")
+  name        String
+  slug        String      @unique
+  description String?
+  price       Float
+  stock       Int         @default(0)
+  image       String?
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model ShippingMethod {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Float    @default(0)
+  estimatedDays Int      @default(1) @map("estimated_days")
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  orders        Order[]
+
+  @@map("shipping_methods")
+}
+
+model Coupon {
+  id            Int       @id @default(autoincrement())
+  code          String    @unique
+  description   String?
+  discountType  String    @default("percentage") @map("discount_type")
+  discountValue Float     @map("discount_value")
+  minPurchase   Float     @default(0) @map("min_purchase")
+  maxUses       Int?      @map("max_uses")
+  usedCount     Int       @default(0) @map("used_count")
+  active        Boolean   @default(true)
+  expiresAt     DateTime? @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  orders        Order[]
+
+  @@map("coupons")
+}
+
+model Order {
+  id               Int            @id @default(autoincrement())
+  userId           Int            @map("user_id")
+  shippingMethodId Int            @map("shipping_method_id")
+  couponId         Int?           @map("coupon_id")
+  status           String         @default("pending")
+  subtotal         Float
+  discountAmount   Float          @default(0) @map("discount_amount")
+  shippingCost     Float          @map("shipping_cost")
+  total            Float
+  shippingAddress  String         @map("shipping_address")
+  shippingCity     String         @map("shipping_city")
+  shippingPhone    String         @map("shipping_phone")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  user             User           @relation(fields: [userId], references: [id])
+  shippingMethod   ShippingMethod @relation(fields: [shippingMethodId], references: [id])
+  coupon           Coupon?        @relation(fields: [couponId], references: [id])
+  items            OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @map("order_id")
+  productId Int      @map("product_id")
+  quantity  Int
+  unitPrice Float    @map("unit_price")
+  subtotal  Float
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
