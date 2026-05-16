@@ -8,10 +8,14 @@ type MailerConfig = {
   from: string;
 };
 
+/** Credenciales: SMTP_USER / SMTP_PASSWORD o aliases GMAIL_USER / GMAIL_APP_PASSWORD */
 function getMailerConfig(): MailerConfig | null {
   const host = process.env.SMTP_HOST?.trim();
-  const user = process.env.SMTP_USER?.trim();
-  const pass = process.env.SMTP_PASSWORD?.trim();
+  const user =
+    process.env.SMTP_USER?.trim() ?? process.env.GMAIL_USER?.trim();
+  const pass =
+    process.env.SMTP_PASSWORD?.trim() ??
+    process.env.GMAIL_APP_PASSWORD?.trim();
   const from = process.env.MAIL_FROM?.trim();
 
   if (!host || !user || !pass || !from) {
@@ -42,15 +46,20 @@ export async function sendMail(options: {
   const config = getMailerConfig();
   if (!config) {
     console.warn(
-      "[email] SMTP no configurado. Define SMTP_HOST, SMTP_USER, SMTP_PASSWORD y MAIL_FROM."
+      "[email] SMTP no configurado. Define SMTP_HOST, MAIL_FROM y credenciales (SMTP_USER + SMTP_PASSWORD, o GMAIL_USER + GMAIL_APP_PASSWORD)."
     );
     return;
   }
 
+  const secure = config.port === 465;
+  const gmailHost = config.host.toLowerCase().includes("gmail");
+
   const transport = nodemailer.createTransport({
     host: config.host,
     port: config.port,
-    secure: config.port === 465,
+    secure,
+    // Gmail en 587: STARTTLS obligatorio vía nodemailer (requireTLS).
+    ...(secure || !gmailHost ? {} : { requireTLS: true }),
     auth: {
       user: config.user,
       pass: config.pass,
